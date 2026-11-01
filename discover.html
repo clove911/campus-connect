@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discover Students | Campus Connect</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/discover.css">
+</head>
+<body>
+
+    <main class="discover-container">
+
+        <a href="dashboard.html" class="back-link">
+            ← Back to dashboard
+        </a>
+
+        <section class="discover-header">
+            <p class="eyebrow">YOUR STUDY COMMUNITY</p>
+            <h1>Find your people.</h1>
+            <p>Discover students who share your subjects and learning style.</p>
+        </section>
+
+        <section class="search-section">
+            <div class="search-box">
+                <span>⌕</span>
+                <input
+                    type="search"
+                    id="studentSearch"
+                    placeholder="Search students by name..."
+                    autocomplete="off"
+                    maxlength="30"
+                >
+            </div>
+
+            <p id="searchMessage" aria-live="polite">
+                Start typing to discover students.
+            </p>
+
+            <div id="searchResults" class="search-results"></div>
+        </section>
+
+    </main>
+
+    <script type="module" src="js/discover.js"></script>
+</body>
+</html>
