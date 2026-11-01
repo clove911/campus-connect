@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in | Campus Connect</title>
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+    <main class="auth-container">
+        <a href="index.html" class="logo">Campus Connect ✦</a>
+
+        <section class="auth-card">
+            <p class="eyebrow">WELCOME BACK</p>
+            <h1>Good to see you.</h1>
+            <p class="subtitle">Your study community is waiting.</p>
+
+            <form id="loginForm">
+                <label for="email">Email address</label>
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="you@example.com"
+                    required
+                >
+
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter your password"
+                    required
+                >
+
+                <button type="submit" id="loginButton">
+                    Log in
+                </button>
+
+                <p id="loginMessage" class="message" aria-live="polite"></p>
+            </form>
+
+            <button type="button" id="forgotPassword" class="text-button">
+                Forgot your password?
+            </button>
+
+            <p class="switch-auth">
+                New to Campus Connect?
+                <a href="register.html">Create an account</a>
+            </p>
+        </section>
+    </main>
+
+    <script type="module" src="js/auth.js"></script>
+</body>
+</html>
