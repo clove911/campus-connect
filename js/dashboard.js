@@ -9,7 +9,7 @@ import {
 
 const welcomeMessage = document.getElementById("welcomeMessage");
 const logoutButton = document.getElementById("logoutButton");
-const deleteAccountButton = document.getElementById("deleteAccountButton"); console.log("Delete button:", deleteAccountButton);
+const deleteAccountButton = document.getElementById("deleteAccountButton"); 
 const dashboardMessage = document.getElementById("dashboardMessage");
 
 onAuthStateChanged(auth, (user) => {
