@@ -906,3 +906,130 @@ button, a {
     }
 }
 
+
+/* CAMPUS CONNECT APP NAVIGATION */
+
+.app-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 245px;
+    height: 100vh;
+    padding: 30px 18px;
+    background: #ffffff;
+    border-right: 1px solid #eeeaf5;
+    box-shadow: 4px 0 20px rgba(60, 45, 100, 0.04);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.nav-logo {
+    font-size: 21px;
+    font-weight: 800;
+    color: #7468d9;
+    text-decoration: none;
+    padding: 8px 12px 35px;
+}
+
+.nav-logo span {
+    color: #f2a9c8;
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    text-decoration: none;
+    color: #77738a;
+    font-size: 15px;
+    font-weight: 700;
+    transition: 0.2s ease;
+}
+
+.nav-icon {
+    font-size: 22px;
+    width: 25px;
+    text-align: center;
+}
+
+.nav-item:hover {
+    background: #f3f1fa;
+    color: #7468d9;
+}
+
+.nav-item.active {
+    background: #7468d9;
+    color: #ffffff;
+    box-shadow: 0 5px 14px rgba(116, 104, 217, 0.2);
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding: 15px 12px;
+    color: #aaa4bc;
+    font-size: 12px;
+}
+
+/* DESKTOP CONTENT SPACING */
+
+@media (min-width: 769px) {
+    body {
+        padding-left: 245px;
+    }
+}
+
+/* MOBILE BOTTOM NAVIGATION */
+
+@media (max-width: 768px) {
+    .app-sidebar {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+        padding: 9px 8px calc(9px + env(safe-area-inset-bottom));
+        border-right: none;
+        border-top: 1px solid #eeeaf5;
+        box-shadow: 0 -5px 20px rgba(60, 45, 100, 0.08);
+        background: #ffffff;
+    }
+
+    .nav-logo,
+    .sidebar-footer {
+        display: none;
+    }
+
+    .nav-links {
+        flex-direction: row;
+        justify-content: space-around;
+        gap: 5px;
+    }
+
+    .nav-item {
+        flex: 1;
+        flex-direction: column;
+        justify-content: center;
+        gap: 3px;
+        padding: 9px 4px;
+        border-radius: 12px;
+        font-size: 11px;
+    }
+
+    .nav-icon {
+        font-size: 21px;
+    }
+
+    body {
+        padding-left: 0;
+        padding-bottom: 90px;
+    }
+}
