@@ -140,15 +140,16 @@ profileForm.addEventListener("submit", async (event) => {
         // Publish or remove the discovery profile
         if (isDiscoverable) {
             const publicProfileData = {
-                displayName,
-                grade,
-                subjects,
-                studyStyle,
-                createdAt: existingPublicProfile
-                    ? existingPublicProfile.createdAt
-                    : serverTimestamp(),
-                updatedAt: serverTimestamp()
-            };
+    displayName,
+    displayNameLower: displayName.trim().toLowerCase(),
+    grade,
+    subjects,
+    studyStyle,
+    createdAt: existingPublicProfile
+        ? existingPublicProfile.createdAt
+        : serverTimestamp(),
+    updatedAt: serverTimestamp()
+};
 
             await setDoc(publicProfileRef, publicProfileData);
 
