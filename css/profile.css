@@ -50,3 +50,37 @@ select:focus {
         grid-template-columns: 1fr;
     }
 }
+
+.discovery-setting {
+    margin: 24px 0;
+    padding: 18px;
+    border: 1px solid #e6e2f5;
+    border-radius: 16px;
+    background: #f8f7ff;
+}
+
+.discovery-setting > label:first-child {
+    font-weight: 700;
+}
+
+.discovery-setting p {
+    color: #77738a;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 8px 0 14px;
+}
+
+.discovery-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.discovery-toggle input {
+    width: 17px;
+    height: 17px;
+    accent-color: #7468d9;
+}
