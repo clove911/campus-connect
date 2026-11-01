@@ -856,3 +856,53 @@ button, a {
         flex-direction: column;
     }
 }
+
+
+.main-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 6%;
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid #eeeaf5;
+    flex-wrap: wrap;
+}
+
+.nav-logo {
+    font-size: 19px;
+    font-weight: 800;
+    color: #7468d9;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #77738a;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: #7468d9;
+}
+
+@media (max-width: 480px) {
+    .main-nav {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .nav-links {
+        gap: 18px;
+    }
+}
+
