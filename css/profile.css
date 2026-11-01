@@ -1,0 +1,52 @@
+
+select {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 20px;
+    border: 1px solid #e5e3f2;
+    border-radius: 11px;
+    background: #fcfbff;
+    font-family: inherit;
+    font-size: 14px;
+    color: #252343;
+}
+
+select:focus {
+    outline: none;
+    border-color: #8983e4;
+}
+
+.subject-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 5px 0 22px;
+}
+
+.subject-options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px;
+    background: #f7f6ff;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.subject-options input {
+    width: auto;
+    margin: 0;
+    accent-color: #7771d7;
+}
+
+.profile-card {
+    max-width: 500px;
+}
+
+@media (max-width: 420px) {
+    .subject-options {
+        grid-template-columns: 1fr;
+    }
+}
