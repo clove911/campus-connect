@@ -28,9 +28,16 @@ let currentUser = null;
 
 // LOAD STUDENT PROFILE
 async function loadProfile(user) {
+    // Set clear temporary values
+    profileGrade.textContent = "Loading...";
+    profileSubjects.textContent = "Loading...";
+    profileStudyStyle.textContent = "Loading...";
+
     try {
         const profileRef = doc(db, "profiles", user.uid);
         const snapshot = await getDoc(profileRef);
+
+        console.log("Profile document exists:", snapshot.exists());
 
         if (!snapshot.exists()) {
             profileGrade.textContent = "Not added yet";
@@ -41,19 +48,26 @@ async function loadProfile(user) {
 
         const profile = snapshot.data();
 
-        welcomeMessage.textContent =
-            `Welcome, ${profile.displayName}!`;
+        console.log("Fetched profile:", profile);
 
-        profileGrade.textContent = `Class ${profile.grade}`;
+        welcomeMessage.textContent =
+            `Welcome, ${profile.displayName || user.displayName || "Student"}!`;
+
+        profileGrade.textContent =
+            profile.grade ? `Class ${profile.grade}` : "Not added yet";
 
         profileSubjects.replaceChildren();
 
-        profile.subjects.forEach(subject => {
-            const tag = document.createElement("span");
-            tag.className = "subject-tag";
-            tag.textContent = subject;
-            profileSubjects.appendChild(tag);
-        });
+        if (Array.isArray(profile.subjects) && profile.subjects.length > 0) {
+            profile.subjects.forEach(subject => {
+                const tag = document.createElement("span");
+                tag.className = "subject-tag";
+                tag.textContent = subject;
+                profileSubjects.appendChild(tag);
+            });
+        } else {
+            profileSubjects.textContent = "No subjects selected";
+        }
 
         const styles = {
             quiet: "Quiet co-study",
@@ -66,8 +80,13 @@ async function loadProfile(user) {
 
     } catch (error) {
         console.error("Profile loading error:", error);
+
+        profileGrade.textContent = "Could not load";
+        profileSubjects.textContent = "Could not load";
+        profileStudyStyle.textContent = "Could not load";
+
         dashboardMessage.textContent =
-            "Could not load your profile.";
+            `Profile error: ${error.code || error.message}`;
     }
 }
 
