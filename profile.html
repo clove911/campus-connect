@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Campus Connect</title>
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/profile.css">
+</head>
+<body>
+
+<main class="auth-container">
+    <a href="dashboard.html" class="logo">Campus Connect ✦</a>
+
+    <section class="auth-card profile-card">
+        <p class="eyebrow">LET'S GET TO KNOW YOU</p>
+        <h1>Your student profile.</h1>
+        <p class="subtitle">Tell us a little about your learning preferences.</p>
+
+        <form id="profileForm">
+
+            <label for="displayName">Display name</label>
+            <input
+                type="text"
+                id="displayName"
+                maxlength="30"
+                required
+                placeholder="Your display name"
+            >
+
+            <label for="grade">Class</label>
+            <select id="grade" required>
+                <option value="">Choose your class</option>
+                <option value="9">Class 9</option>
+                <option value="10">Class 10</option>
+                <option value="11">Class 11</option>
+                <option value="12">Class 12</option>
+            </select>
+
+            <label>Subjects you want to study</label>
+
+            <div class="subject-options">
+                <label><input type="checkbox" name="subjects" value="Mathematics"> Mathematics</label>
+                <label><input type="checkbox" name="subjects" value="Science"> Science</label>
+                <label><input type="checkbox" name="subjects" value="English"> English</label>
+                <label><input type="checkbox" name="subjects" value="Social Science"> Social Science</label>
+                <label><input type="checkbox" name="subjects" value="Computer Science"> Computer Science</label>
+                <label><input type="checkbox" name="subjects" value="Languages"> Languages</label>
+                <label><input type="checkbox" name="subjects" value="Other"> Other</label>
+            </div>
+
+            <label for="studyStyle">How do you prefer to study?</label>
+            <select id="studyStyle" required>
+                <option value="">Choose your style</option>
+                <option value="quiet">Quiet co-study</option>
+                <option value="discussion">Discussion and explaining</option>
+                <option value="check-ins">Independent study with check-ins</option>
+            </select>
+
+            <button type="submit" id="saveProfileButton">
+                Save profile
+            </button>
+
+            <p id="profileMessage" class="message" aria-live="polite"></p>
+        </form>
+
+        <p class="switch-auth">
+            <a href="dashboard.html">← Back to dashboard</a>
+        </p>
+    </section>
+</main>
+
+<script type="module" src="js/profile.js"></script>
+</body>
+</html>
