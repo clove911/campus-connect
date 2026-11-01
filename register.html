@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Campus Connect</title>
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+    <main class="auth-container">
+        <a href="index.html" class="logo">Campus Connect ✦</a>
+
+        <section class="auth-card">
+            <p class="eyebrow">YOUR PEOPLE. YOUR COMMUNITY.</p>
+            <h1>Create your account.</h1>
+            <p class="subtitle">A better way to learn together.</p>
+
+            <form id="registerForm">
+                <label for="displayName">Display name</label>
+                <input
+                    type="text"
+                    id="displayName"
+                    placeholder="What should we call you?"
+                    maxlength="30"
+                    required
+                >
+
+                <label for="email">Email address</label>
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="you@example.com"
+                    required
+                >
+
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="At least 6 characters"
+                    minlength="6"
+                    required
+                >
+
+                <label for="confirmPassword">Confirm password</label>
+                <input
+                    type="password"
+                    id="confirmPassword"
+                    placeholder="Enter your password again"
+                    minlength="6"
+                    required
+                >
+
+                <button type="submit" id="registerButton">
+                    Create account
+                </button>
+
+                <p id="registerMessage" class="message" aria-live="polite"></p>
+            </form>
+
+            <p class="switch-auth">
+                Already have an account?
+                <a href="login.html">Log in</a>
+            </p>
+        </section>
+    </main>
+
+    <script type="module" src="js/auth.js"></script>
+</body>
+</html>
