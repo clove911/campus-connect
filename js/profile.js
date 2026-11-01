@@ -10,6 +10,7 @@ import {
     doc,
     getDoc,
     setDoc,
+    deleteDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
@@ -17,14 +18,16 @@ const profileForm = document.getElementById("profileForm");
 const displayNameInput = document.getElementById("displayName");
 const gradeInput = document.getElementById("grade");
 const studyStyleInput = document.getElementById("studyStyle");
+const discoverableInput = document.getElementById("discoverable");
 const saveButton = document.getElementById("saveProfileButton");
 const message = document.getElementById("profileMessage");
 
 let currentUser = null;
 let existingProfile = null;
+let existingPublicProfile = null;
 
 
-// LOAD THE SIGNED-IN USER'S PROFILE
+// LOAD PROFILE
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         window.location.replace("login.html");
@@ -35,7 +38,12 @@ onAuthStateChanged(auth, async (user) => {
 
     try {
         const profileRef = doc(db, "profiles", user.uid);
-        const profileSnapshot = await getDoc(profileRef);
+        const publicProfileRef = doc(db, "publicProfiles", user.uid);
+
+        const [profileSnapshot, publicSnapshot] = await Promise.all([
+            getDoc(profileRef),
+            getDoc(publicProfileRef)
+        ]);
 
         if (profileSnapshot.exists()) {
             existingProfile = profileSnapshot.data();
@@ -53,9 +61,15 @@ onAuthStateChanged(auth, async (user) => {
             });
 
             saveButton.textContent = "Update profile";
-
         } else {
             displayNameInput.value = user.displayName || "";
+        }
+
+        if (publicSnapshot.exists()) {
+            existingPublicProfile = publicSnapshot.data();
+            discoverableInput.checked = true;
+        } else {
+            discoverableInput.checked = false;
         }
 
     } catch (error) {
@@ -77,6 +91,7 @@ profileForm.addEventListener("submit", async (event) => {
     const displayName = displayNameInput.value.trim();
     const grade = gradeInput.value;
     const studyStyle = studyStyleInput.value;
+    const isDiscoverable = discoverableInput.checked;
 
     const subjects = Array.from(
         document.querySelectorAll('input[name="subjects"]:checked')
@@ -92,12 +107,18 @@ profileForm.addEventListener("submit", async (event) => {
         return;
     }
 
+    if (!grade || !studyStyle) {
+        message.textContent = "Please complete all profile fields.";
+        return;
+    }
+
     saveButton.disabled = true;
     saveButton.textContent = "Saving...";
     message.textContent = "";
 
     try {
         const profileRef = doc(db, "profiles", currentUser.uid);
+        const publicProfileRef = doc(db, "publicProfiles", currentUser.uid);
 
         const profileData = {
             displayName,
@@ -110,28 +131,49 @@ profileForm.addEventListener("submit", async (event) => {
             updatedAt: serverTimestamp()
         };
 
+        // Save the private profile
         await setDoc(profileRef, profileData);
 
-        await updateProfile(currentUser, {
-            displayName
-        });
+        // Update Firebase Authentication display name
+        await updateProfile(currentUser, { displayName });
 
-        existingProfile = {
-            ...profileData,
-            createdAt: existingProfile
-                ? existingProfile.createdAt
-                : null
-        };
+        // Publish or remove the discovery profile
+        if (isDiscoverable) {
+            const publicProfileData = {
+                displayName,
+                grade,
+                subjects,
+                studyStyle,
+                createdAt: existingPublicProfile
+                    ? existingPublicProfile.createdAt
+                    : serverTimestamp(),
+                updatedAt: serverTimestamp()
+            };
 
-        message.textContent = "Profile saved successfully! ✨";
+            await setDoc(publicProfileRef, publicProfileData);
+
+            existingPublicProfile = publicProfileData;
+        } else {
+            await deleteDoc(publicProfileRef);
+            existingPublicProfile = null;
+        }
+
+        // Reload saved data, including the server timestamps
+        const savedSnapshot = await getDoc(profileRef);
+        existingProfile = savedSnapshot.data();
+
+        message.textContent = isDiscoverable
+            ? "Profile saved! You're now discoverable. ✨"
+            : "Profile saved! You're hidden from discovery. ✨";
+
         saveButton.textContent = "Update profile";
 
     } catch (error) {
         console.error("Profile saving error:", error);
-        message.textContent = "Could not save your profile. Please try again.";
-        saveButton.textContent = "Save profile";
-
+        message.textContent =
+            "Could not save your profile. Please check your connection and try again.";
     } finally {
         saveButton.disabled = false;
+        saveButton.textContent = "Update profile";
     }
 });
