@@ -167,3 +167,43 @@ button:disabled {
         font-size: 26px;
     }
 }
+
+
+.profile-summary {
+    background: #f8f7ff;
+    border: 1px solid #e9e6fa;
+    border-radius: 16px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.profile-summary h2 {
+    font-size: 18px;
+    margin-bottom: 17px;
+}
+
+.profile-summary p {
+    font-size: 13px;
+    margin: 12px 0;
+    line-height: 1.6;
+}
+
+#profileSubjects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.subject-tag {
+    background: #e9e6ff;
+    color: #514aab;
+    border-radius: 20px;
+    padding: 6px 10px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.profile-summary .profile-link {
+    margin-bottom: 0;
+}
