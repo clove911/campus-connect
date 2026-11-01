@@ -9,16 +9,25 @@ import {
 
 const welcomeMessage = document.getElementById("welcomeMessage");
 const logoutButton = document.getElementById("logoutButton");
-const deleteAccountButton = document.getElementById("deleteAccountButton"); 
+const deleteAccountButton = document.getElementById("deleteAccountButton");
 const dashboardMessage = document.getElementById("dashboardMessage");
 
+let currentUser = null;
+let authReady = false;
+
+
+// CHECK AUTHENTICATION
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        welcomeMessage.textContent =
-            `Welcome, ${user.displayName || "Student"}!`;
-    } else {
-        window.location.href = "login.html";
+    authReady = true;
+    currentUser = user;
+
+    if (!user) {
+        window.location.replace("login.html");
+        return;
     }
+
+    welcomeMessage.textContent =
+        `Welcome, ${user.displayName || "Student"}!`;
 });
 
 
@@ -26,8 +35,9 @@ onAuthStateChanged(auth, (user) => {
 logoutButton.addEventListener("click", async () => {
     try {
         await signOut(auth);
-        window.location.href = "login.html";
+        window.location.replace("login.html");
     } catch (error) {
+        console.error("Logout error:", error);
         dashboardMessage.textContent =
             "Could not log out. Please try again.";
     }
@@ -36,44 +46,38 @@ logoutButton.addEventListener("click", async () => {
 
 // DELETE ACCOUNT
 deleteAccountButton.addEventListener("click", async () => {
-    const user = auth.currentUser;
 
-    if (!user) {
+    if (!authReady || !currentUser) {
+        dashboardMessage.textContent =
+            "Please wait for your account to load.";
         return;
     }
 
     const confirmed = window.confirm(
-        "Are you sure you want to permanently delete your Campus Connect account? This action cannot be undone."
+        "Are you sure you want to permanently delete your account? This cannot be undone."
     );
 
-    if (!confirmed) {
-        return;
-    }
+    if (!confirmed) return;
 
     deleteAccountButton.disabled = true;
     dashboardMessage.textContent = "Deleting your account...";
 
     try {
-        await deleteUser(user);
+        await deleteUser(currentUser);
 
-        window.location.href = "index.html";
+        window.location.replace("index.html");
 
     } catch (error) {
         console.error("Account deletion error:", error);
 
         if (error.code === "auth/requires-recent-login") {
             dashboardMessage.textContent =
-                "For security, please log out, log back in, and try deleting your account again.";
+                "Please log out, log back in, and try deleting your account again.";
         } else {
             dashboardMessage.textContent =
                 "Account deletion failed. Please try again.";
         }
 
         deleteAccountButton.disabled = false;
-    }
-});
-window.addEventListener("pageshow", () => {
-    if (!auth.currentUser) {
-        window.location.replace("login.html");
     }
 });
