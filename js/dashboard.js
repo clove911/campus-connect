@@ -72,3 +72,8 @@ deleteAccountButton.addEventListener("click", async () => {
         deleteAccountButton.disabled = false;
     }
 });
+window.addEventListener("pageshow", () => {
+    if (!auth.currentUser) {
+        window.location.replace("login.html");
+    }
+});
