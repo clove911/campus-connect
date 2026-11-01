@@ -65,6 +65,20 @@ form {
     flex-direction: column;
 }
 
+.profile-link {
+    display: block;
+    text-align: center;
+    margin: 20px 0;
+    color: #625cc3;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.profile-link:hover {
+    text-decoration: underline;
+}
+
 label {
     font-size: 13px;
     font-weight: 700;
