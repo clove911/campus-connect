@@ -86,6 +86,36 @@
             <p id="profileMessage" class="message" aria-live="polite"></p>
         </form>
 
+        
+<section class="profile-share-section">
+  <h2>Your shareable profile link ✦</h2>
+
+  <p>
+    Share your profile with friends. They'll need to sign in
+    to view your preview.
+  </p>
+
+  <input
+    type="text"
+    id="shareLink"
+    readonly
+    placeholder="Your profile link will appear here..."
+  >
+
+  <div class="share-buttons">
+    <button type="button" id="copyShareLinkButton">
+      Copy Link
+    </button>
+
+    <button type="button" id="regenerateShareLinkButton">
+      Regenerate Link
+    </button>
+  </div>
+
+  <p id="shareMessage" style="display:none;"></p>
+</section>
+
+
         <p class="switch-auth">
             <a href="dashboard.html">← Back to dashboard</a>
         </p>
