@@ -139,6 +139,7 @@ async function loadConnections() {
     }
 }
 
+
 async function loadReceivedRequests() {
     const requestsQuery = query(
         collection(db, "connectionRequests"),
@@ -157,41 +158,106 @@ async function loadReceivedRequests() {
 
     hideMessage();
 
+    let displayedCount = 0;
+
     for (const requestDoc of snapshot.docs) {
         const request = requestDoc.data();
-        const profile = await getPublicProfile(request.senderId);
 
-        if (!profile) continue;
+        try {
+            const profile = await getPublicProfile(request.senderId);
 
-        const actions = createElement("div", "connection-actions", "");
+            if (!profile) {
+                console.warn(
+                    "Sender profile not found:",
+                    request.senderId
+                );
 
-        const acceptButton = createElement(
-            "button",
-            "connection-action accept-button",
-            "Accept"
-        );
+                const missingCard = createElement(
+                    "article",
+                    "connection-card",
+                    ""
+                );
 
-        const declineButton = createElement(
-            "button",
-            "connection-action decline-button",
-            "Decline"
-        );
+                const message = createElement(
+                    "p",
+                    "connection-details",
+                    "A student sent you a request, but their public profile is unavailable."
+                );
 
-        acceptButton.addEventListener("click", () =>
-            respondToRequest(requestDoc.id, request, "accepted", acceptButton, declineButton)
-        );
+                missingCard.appendChild(message);
+                connectionList.appendChild(missingCard);
 
-        declineButton.addEventListener("click", () =>
-            respondToRequest(requestDoc.id, request, "declined", acceptButton, declineButton)
-        );
+                displayedCount++;
+                continue;
+            }
 
-        actions.append(acceptButton, declineButton);
+            const actions = createElement(
+                "div",
+                "connection-actions",
+                ""
+            );
 
-        connectionList.appendChild(
-            createStudentCard(profile, request.senderId, null, actions)
+            const acceptButton = createElement(
+                "button",
+                "connection-action accept-button",
+                "Accept"
+            );
+
+            const declineButton = createElement(
+                "button",
+                "connection-action decline-button",
+                "Decline"
+            );
+
+            acceptButton.addEventListener("click", () =>
+                respondToRequest(
+                    requestDoc.id,
+                    request,
+                    "accepted",
+                    acceptButton,
+                    declineButton
+                )
+            );
+
+            declineButton.addEventListener("click", () =>
+                respondToRequest(
+                    requestDoc.id,
+                    request,
+                    "declined",
+                    acceptButton,
+                    declineButton
+                )
+            );
+
+            actions.append(acceptButton, declineButton);
+
+            connectionList.appendChild(
+                createStudentCard(
+                    profile,
+                    request.senderId,
+                    null,
+                    actions
+                )
+            );
+
+            displayedCount++;
+
+        } catch (error) {
+            console.error(
+                "Could not load sender:",
+                request.senderId,
+                error
+            );
+        }
+    }
+
+    if (displayedCount === 0) {
+        showMessage(
+            "Your request was found, but its sender profile couldn't be displayed. Check the browser console."
         );
     }
 }
+
 
 async function loadSentRequests() {
     const requestsQuery = query(
