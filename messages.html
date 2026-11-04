@@ -14,15 +14,24 @@
 
 <body>
 
+    <!-- SIDEBAR NAVIGATION -->
+
     <nav class="app-sidebar">
+
         <a href="dashboard.html" class="nav-logo">
             Campus Connect <span>✦</span>
         </a>
 
         <div class="nav-links">
+
             <a href="dashboard.html" class="nav-item">
                 <span class="nav-icon">⌂</span>
                 <span>Home</span>
+            </a>
+
+            <a href="messages.html" class="nav-item active">
+                <span class="nav-icon">✉</span>
+                <span>Messages</span>
             </a>
 
             <a href="discover.html" class="nav-item">
@@ -35,76 +44,135 @@
                 <span>My Profile</span>
             </a>
 
-            <a href="messages.html" class="nav-item active">
-                <span class="nav-icon">✉</span>
-                <span>Messages</span>
+            <a href="connections.html" class="nav-item">
+                <span class="nav-icon">♡</span>
+                <span>Connections</span>
             </a>
+
         </div>
 
         <div class="sidebar-footer">
             Your space to grow. ✨
         </div>
+
     </nav>
+
+
+    <!-- MAIN MESSAGES AREA -->
 
     <main class="messages-page">
 
         <header class="messages-heading">
+
             <div>
-                <p class="messages-eyebrow">YOUR CAMPUS COMMUNITY</p>
+                <p class="messages-eyebrow">
+                    YOUR CAMPUS COMMUNITY
+                </p>
+
                 <h1>Messages<span> ✦</span></h1>
-                <p>Chat, collaborate and learn together.</p>
+
+                <p>
+                    Chat, collaborate and learn together.
+                </p>
             </div>
+
         </header>
 
+
+        <!-- MESSAGING LAYOUT -->
+
         <section class="messaging-layout">
+
 
             <!-- CONVERSATION PANEL -->
 
             <aside class="inbox-panel">
 
                 <div class="inbox-heading">
+
                     <h2>Chats</h2>
-                    <span class="inbox-count" id="conversationCount">0</span>
+
+                    <span
+                        class="inbox-count"
+                        id="conversationCount"
+                    >
+                        0
+                    </span>
+
                 </div>
 
+
+                <!-- SEARCH CONVERSATIONS -->
+
                 <div class="inbox-search">
+
                     <span>⌕</span>
+
                     <input
                         type="search"
                         id="conversationSearch"
                         placeholder="Search conversations..."
                     >
+
                 </div>
 
-                <div id="conversationList" class="conversation-list">
+
+                <!-- CONVERSATION LIST -->
+
+                <div
+                    id="conversationList"
+                    class="conversation-list"
+                >
 
                     <div class="empty-inbox">
-                        <div class="empty-inbox-icon">✉</div>
+
+                        <div class="empty-inbox-icon">
+                            ✉
+                        </div>
+
                         <h3>No conversations yet</h3>
-                        <p>Your accepted connections will appear here.</p>
-                        <a href="discover.html">Discover students →</a>
+
+                        <p>
+                            Your accepted connections will appear here.
+                        </p>
+
+                        <a href="discover.html">
+                            Discover students →
+                        </a>
+
                     </div>
 
                 </div>
 
             </aside>
 
+
             <!-- CHAT WINDOW -->
 
-            <section class="chat-panel" id="chatPanel">
+            <section
+                class="chat-panel"
+                id="chatPanel"
+            >
 
                 <div class="chat-empty-state">
 
-                    <div class="chat-illustration">💬</div>
+                    <div class="chat-illustration">
+                        💬
+                    </div>
 
-                    <h2>Your conversations start here.</h2>
+                    <h2>
+                        Your conversations start here.
+                    </h2>
 
                     <p>
                         Connect with other students and start
                         learning together.
                     </p>
 
-                    <a href="discover.html" class="discover-button">
+                    <a
+                        href="discover.html"
+                        class="discover-button"
+                    >
                         Find study buddies
                     </a>
 
@@ -112,11 +180,18 @@
 
             </section>
 
+
         </section>
 
     </main>
 
-    <script type="module" src="js/messages.js"></script>
+
+    <!-- JAVASCRIPT -->
+
+    <script
+        type="module"
+        src="js/messages.js"
+    ></script>
 
 </body>
 </html>
