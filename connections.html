@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connections | Campus Connect</title>
+
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/connections.css">
+</head>
+
+<body>
+
+    <aside class="app-sidebar">
+        <div class="nav-logo">Campus Connect</div>
+
+        <nav class="nav-links">
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon">⌂</span>
+                <span>Home</span>
+            </a>
+
+            <a href="discover.html" class="nav-item">
+                <span class="nav-icon">⌕</span>
+                <span>Discover</span>
+            </a>
+
+            <a href="profile.html" class="nav-item">
+                <span class="nav-icon">♙</span>
+                <span>My Profile</span>
+            </a>
+
+            <a href="connections.html" class="nav-item active">
+                <span class="nav-icon">♡</span>
+                <span>Connections</span>
+            </a>
+
+            <a href="messages.html" class="nav-item">
+                <span class="nav-icon">✉</span>
+                <span>Messages</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="connections-page">
+
+        <header class="connections-heading">
+            <div>
+                <p class="eyebrow">YOUR CAMPUS COMMUNITY</p>
+                <h1>Connections</h1>
+                <p>Meet students, build your circle and study together.</p>
+            </div>
+        </header>
+
+        <section class="connection-tabs">
+            <button class="connection-tab active" data-tab="received">
+                Received
+                <span id="receivedCount">0</span>
+            </button>
+
+            <button class="connection-tab" data-tab="sent">
+                Sent
+            </button>
+
+            <button class="connection-tab" data-tab="connected">
+                My Connections
+                <span id="connectedCount">0</span>
+            </button>
+        </section>
+
+        <section class="connection-content">
+
+            <div id="connectionMessage" class="connection-message">
+                Loading your connections...
+            </div>
+
+            <div id="connectionList" class="connection-list"></div>
+
+        </section>
+
+        <a href="discover.html" class="discover-more">
+            ＋ Discover more students
+        </a>
+
+    </main>
+
+    <script type="module" src="js/connections.js"></script>
+
+</body>
+</html>
