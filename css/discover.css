@@ -101,3 +101,39 @@
     align-items: center;
     gap: 13px;
 }
+
+.connection-button {
+    width: 100%;
+    margin-top: 14px;
+    padding: 11px 16px;
+    border: none;
+    border-radius: 12px;
+    background: #5269e8;
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.connection-button:hover:not(:disabled) {
+    background: #354dcc;
+    transform: translateY(-2px);
+}
+
+.connection-button:disabled {
+    background: #e9edff;
+    color: #53618e;
+    cursor: default;
+    opacity: 1;
+}
+
+.connection-button[data-status="connected"] {
+    background: #dff5eb;
+    color: #26734e;
+}
+
+.connection-button[data-status="received"] {
+    background: #fff0d5;
+    color: #805514;
+}
