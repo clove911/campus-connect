@@ -1,0 +1,251 @@
+
+/* MESSAGES PAGE */
+
+.messages-page {
+    max-width: 1450px;
+    margin: 0 auto;
+    padding: 35px;
+    min-height: 100vh;
+    background: #f8f9fd;
+}
+
+.messages-heading {
+    margin-bottom: 28px;
+}
+
+.messages-eyebrow {
+    color: #7468d9;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.messages-heading h1 {
+    color: #24243a;
+    font-size: clamp(30px, 4vw, 42px);
+    margin: 8px 0;
+}
+
+.messages-heading h1 span {
+    color: #f2a9c8;
+}
+
+.messages-heading > div > p:last-child {
+    color: #85849a;
+    font-size: 14px;
+}
+
+/* MAIN TWO-PANEL LAYOUT */
+
+.messaging-layout {
+    display: grid;
+    grid-template-columns: 340px minmax(0, 1fr);
+    min-height: 590px;
+    height: calc(100vh - 190px);
+    max-height: 850px;
+    background: #ffffff;
+    border: 1px solid #e9eaf2;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(35, 49, 85, 0.05);
+}
+
+/* INBOX */
+
+.inbox-panel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border-right: 1px solid #e9eaf2;
+    background: #ffffff;
+}
+
+.inbox-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 24px 20px 16px;
+}
+
+.inbox-heading h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #25283b;
+}
+
+.inbox-count {
+    display: grid;
+    place-items: center;
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    background: #e9edff;
+    color: #244b91;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.inbox-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 16px 15px;
+    padding: 12px 14px;
+    border: 1px solid #e9eaf2;
+    border-radius: 12px;
+    background: #f8f9fd;
+}
+
+.inbox-search span {
+    color: #173b75;
+    font-size: 21px;
+}
+
+.inbox-search input {
+    width: 100%;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #25283b;
+    font-size: 13px;
+}
+
+.conversation-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* EMPTY STATES */
+
+.empty-inbox {
+    padding: 35px 20px;
+    text-align: center;
+}
+
+.empty-inbox-icon {
+    display: grid;
+    place-items: center;
+    width: 55px;
+    height: 55px;
+    margin: 0 auto 16px;
+    border-radius: 18px;
+    background: #edf1ff;
+    color: #173b75;
+    font-size: 26px;
+}
+
+.empty-inbox h3 {
+    color: #303249;
+    font-size: 15px;
+}
+
+.empty-inbox p {
+    color: #9291a3;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.empty-inbox a {
+    display: inline-block;
+    margin-top: 10px;
+    color: #315a9c;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+/* CHAT PANEL */
+
+.chat-panel {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    background:
+        radial-gradient(circle at 85% 10%, #f0f3ff 0, transparent 35%),
+        #ffffff;
+}
+
+.chat-empty-state {
+    max-width: 360px;
+    padding: 30px;
+    text-align: center;
+}
+
+.chat-illustration {
+    display: grid;
+    place-items: center;
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 22px;
+    border-radius: 28px;
+    background: #eaf0ff;
+    font-size: 39px;
+}
+
+.chat-empty-state h2 {
+    color: #242b40;
+    font-size: 23px;
+}
+
+.chat-empty-state p {
+    color: #858ba0;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.discover-button {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 13px 22px;
+    border-radius: 12px;
+    background: #173b75;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    transition: 0.2s ease;
+}
+
+.discover-button:hover {
+    background: #244f94;
+    transform: translateY(-2px);
+}
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+
+    .messages-page {
+        padding: 24px 14px;
+        min-height: calc(100vh - 90px);
+    }
+
+    .messages-heading {
+        margin-bottom: 20px;
+    }
+
+    .messaging-layout {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        min-height: 500px;
+        max-height: none;
+    }
+
+    .inbox-panel {
+        min-height: 420px;
+        border-right: none;
+    }
+
+    .chat-panel {
+        display: none;
+    }
+}
+
+@media (min-width: 769px) {
+    .chat-panel {
+        display: grid;
+    }
+}
