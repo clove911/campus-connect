@@ -1,407 +1,409 @@
+
 import { auth, db } from "./firebase.js";
 
 import {
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
-
-import {
-    collection,
-    query,
-    where,
-    getDocs,
-    getDoc,
-    doc,
-    writeBatch
+  collection,
+  query,
+  where,
+  getDocs,
+  getDoc,
+  doc,
+  writeBatch,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
-const connectionList = document.getElementById("connectionList");
-const connectionMessage = document.getElementById("connectionMessage");
+const receivedTab = document.getElementById("receivedTab");
+const sentTab = document.getElementById("sentTab");
+const connectedTab = document.getElementById("connectedTab");
+
+const receivedContainer = document.getElementById("receivedContainer");
+const sentContainer = document.getElementById("sentContainer");
+const connectedContainer = document.getElementById("connectedContainer");
+
 const receivedCount = document.getElementById("receivedCount");
 const connectedCount = document.getElementById("connectedCount");
-const tabs = document.querySelectorAll(".connection-tab");
 
 let currentUser = null;
 let activeTab = "received";
 
-onAuthStateChanged(auth, user => {
-    if (!user) {
-        window.location.replace("login.html");
-        return;
-    }
-
-    currentUser = user;
-    loadConnections();
-});
-
-tabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-        tabs.forEach(item => item.classList.remove("active"));
-
-        tab.classList.add("active");
-        activeTab = tab.dataset.tab;
-
-        loadConnections();
-    });
-});
-
-function showMessage(message) {
-    connectionMessage.textContent = message;
-    connectionMessage.style.display = "block";
-}
-
-function hideMessage() {
-    connectionMessage.style.display = "none";
-}
-
-function createElement(tag, className, text) {
-    const element = document.createElement(tag);
-    element.className = className;
-    element.textContent = text;
-    return element;
-}
-
-function getConnectionId(uid1, uid2) {
-    return [uid1, uid2].sort().join("_");
-}
+// ---------- PROFILE HELPERS ----------
 
 async function getPublicProfile(userId) {
-    const profileSnapshot = await getDoc(
-        doc(db, "publicProfiles", userId)
-    );
+  const snap = await getDoc(doc(db, "publicProfiles", userId));
 
-    if (!profileSnapshot.exists()) {
-        return null;
-    }
+  if (snap.exists()) {
+    return snap.data();
+  }
 
-    return profileSnapshot.data();
+  return null;
 }
 
-function createStudentCard(profile, userId, details, actions) {
-    const card = createElement("article", "connection-card", "");
+function previewToProfile(preview) {
+  if (!preview) return null;
 
-    const person = createElement("div", "connection-person", "");
-
-    const avatar = createElement(
-        "div",
-        "connection-avatar",
-        profile.displayName?.charAt(0).toUpperCase() || "?"
-    );
-
-    const info = createElement("div", "", "");
-
-    const name = createElement(
-        "h3",
-        "",
-        profile.displayName || "Campus student"
-    );
-
-    const grade = createElement(
-        "p",
-        "",
-        profile.grade ? `Class ${profile.grade}` : "Student"
-    );
-
-    info.append(name, grade);
-    person.append(avatar, info);
-
-    const description = createElement(
-        "p",
-        "connection-details",
-        details || `Subjects: ${(profile.subjects || []).join(", ")}`
-    );
-
-    card.append(person, description);
-
-    if (actions) {
-        card.append(actions);
-    }
-
-    return card;
+  return {
+    displayName: preview.displayName || "Student",
+    grade: preview.grade || "",
+    subjects: preview.subjects || [],
+    studyStyle: preview.studyStyle || ""
+  };
 }
 
-async function loadConnections() {
-    if (!currentUser) return;
+async function getRequestPreview(requestData, userId) {
+  // Prefer the limited preview saved with the request.
+  if (requestData.senderPreview && requestData.senderId === userId) {
+    return previewToProfile(requestData.senderPreview);
+  }
 
-    connectionList.replaceChildren();
-    showMessage("Loading...");
+  // Otherwise, try the public profile.
+  const publicProfile = await getPublicProfile(userId);
 
-    try {
-        if (activeTab === "received") {
-            await loadReceivedRequests();
-        } else if (activeTab === "sent") {
-            await loadSentRequests();
-        } else {
-            await loadAcceptedConnections();
-        }
-    } catch (error) {
-        console.error("Connections loading error:", error);
-        showMessage("Couldn't load this section. Please try again.");
-    }
-}
+  if (publicProfile) {
+    return previewToProfile(publicProfile);
+  }
 
-
-async function loadReceivedRequests() {
-    const requestsQuery = query(
-        collection(db, "connectionRequests"),
-        where("receiverId", "==", currentUser.uid),
-        where("status", "==", "pending")
+  // If the request contains a share token, try its limited preview.
+  if (requestData.shareToken) {
+    const shareSnap = await getDoc(
+      doc(db, "profileShares", requestData.shareToken)
     );
 
-    const snapshot = await getDocs(requestsQuery);
+    if (shareSnap.exists()) {
+      const shareData = shareSnap.data();
 
-    receivedCount.textContent = snapshot.size;
-
-    if (snapshot.empty) {
-        showMessage("No incoming requests yet. Your campus circle is waiting!");
-        return;
+      if (shareData.ownerId === userId) {
+        return previewToProfile(shareData);
+      }
     }
+  }
 
-    hideMessage();
-
-    let displayedCount = 0;
-
-    for (const requestDoc of snapshot.docs) {
-        const request = requestDoc.data();
-
-        try {
-            const profile = await getPublicProfile(request.senderId);
-
-            if (!profile) {
-                console.warn(
-                    "Sender profile not found:",
-                    request.senderId
-                );
-
-                const missingCard = createElement(
-                    "article",
-                    "connection-card",
-                    ""
-                );
-
-                const message = createElement(
-                    "p",
-                    "connection-details",
-                    "A student sent you a request, but their public profile is unavailable."
-                );
-
-                missingCard.appendChild(message);
-                connectionList.appendChild(missingCard);
-
-                displayedCount++;
-                continue;
-            }
-
-            const actions = createElement(
-                "div",
-                "connection-actions",
-                ""
-            );
-
-            const acceptButton = createElement(
-                "button",
-                "connection-action accept-button",
-                "Accept"
-            );
-
-            const declineButton = createElement(
-                "button",
-                "connection-action decline-button",
-                "Decline"
-            );
-
-            acceptButton.addEventListener("click", () =>
-                respondToRequest(
-                    requestDoc.id,
-                    request,
-                    "accepted",
-                    acceptButton,
-                    declineButton
-                )
-            );
-
-            declineButton.addEventListener("click", () =>
-                respondToRequest(
-                    requestDoc.id,
-                    request,
-                    "declined",
-                    acceptButton,
-                    declineButton
-                )
-            );
-
-            actions.append(acceptButton, declineButton);
-
-            connectionList.appendChild(
-                createStudentCard(
-                    profile,
-                    request.senderId,
-                    null,
-                    actions
-                )
-            );
-
-            displayedCount++;
-
-        } catch (error) {
-            console.error(
-                "Could not load sender:",
-                request.senderId,
-                error
-            );
-        }
-    }
-
-    if (displayedCount === 0) {
-        showMessage(
-            "Your request was found, but its sender profile couldn't be displayed. Check the browser console."
-        );
-    }
+  return null;
 }
 
+// ---------- UI HELPERS ----------
 
-async function loadSentRequests() {
-    const requestsQuery = query(
-        collection(db, "connectionRequests"),
-        where("senderId", "==", currentUser.uid)
+function createCard(profile, statusText = "") {
+  const card = document.createElement("div");
+  card.className = "connection-card";
+
+  const name = document.createElement("h3");
+  name.textContent = profile.displayName || "Student";
+
+  const grade = document.createElement("p");
+  grade.textContent = profile.grade ? `Grade ${profile.grade}` : "";
+
+  const subjects = document.createElement("p");
+  subjects.textContent =
+    Array.isArray(profile.subjects)
+      ? profile.subjects.join(", ")
+      : "";
+
+  const style = document.createElement("p");
+  style.textContent = profile.studyStyle || "";
+
+  const status = document.createElement("p");
+  status.className = "connection-status";
+  status.textContent = statusText;
+
+  card.append(name, grade, subjects, style, status);
+
+  return card;
+}
+
+function createButton(text, callback, className = "") {
+  const button = document.createElement("button");
+  button.textContent = text;
+  button.className = className;
+
+  button.addEventListener("click", callback);
+
+  return button;
+}
+
+function showMessage(container, message) {
+  container.replaceChildren();
+
+  const p = document.createElement("p");
+  p.textContent = message;
+
+  container.appendChild(p);
+}
+
+function setTab(tab) {
+  activeTab = tab;
+
+  receivedContainer.style.display =
+    tab === "received" ? "block" : "none";
+
+  sentContainer.style.display =
+    tab === "sent" ? "block" : "none";
+
+  connectedContainer.style.display =
+    tab === "connected" ? "block" : "none";
+
+  receivedTab.classList.toggle("active", tab === "received");
+  sentTab.classList.toggle("active", tab === "sent");
+  connectedTab.classList.toggle("active", tab === "connected");
+
+  loadCurrentTab();
+}
+
+// ---------- RECEIVED REQUESTS ----------
+
+async function loadReceived() {
+  showMessage(receivedContainer, "Loading requests...");
+
+  const q = query(
+    collection(db, "connectionRequests"),
+    where("receiverId", "==", currentUser.uid),
+    where("status", "==", "pending")
+  );
+
+  const snapshot = await getDocs(q);
+
+  receivedCount.textContent = snapshot.size;
+
+  receivedContainer.replaceChildren();
+
+  if (snapshot.empty) {
+    showMessage(receivedContainer, "No pending requests yet.");
+    return;
+  }
+
+  for (const requestDoc of snapshot.docs) {
+    const requestData = requestDoc.data();
+
+    const profile = await getRequestPreview(
+      requestData,
+      requestData.senderId
     );
 
-    const snapshot = await getDocs(requestsQuery);
-
-    if (snapshot.empty) {
-        showMessage("You haven't sent any connection requests yet.");
-        return;
-    }
-
-    const requests = snapshot.docs.filter(
-        item => item.data().status === "pending"
+    const card = createCard(
+      profile || { displayName: "Unavailable profile" },
+      "Wants to connect with you"
     );
 
-    if (requests.length === 0) {
-        showMessage("No pending sent requests.");
-        return;
+    if (profile) {
+      const acceptButton = createButton("Accept", async () => {
+        await respondToRequest(requestDoc.id, "accepted");
+      });
+
+      const declineButton = createButton("Decline", async () => {
+        await respondToRequest(requestDoc.id, "declined");
+      });
+
+      card.append(acceptButton, declineButton);
     }
 
-    hideMessage();
-
-    for (const requestDoc of requests) {
-        const request = requestDoc.data();
-        const profile = await getPublicProfile(request.receiverId);
-
-        if (!profile) continue;
-
-        const status = createElement(
-            "span",
-            "status-label",
-            "Request sent"
-        );
-
-        connectionList.appendChild(
-            createStudentCard(profile, request.receiverId, null, status)
-        );
-    }
+    receivedContainer.appendChild(card);
+  }
 }
 
-async function loadAcceptedConnections() {
-    const connectionsQuery = query(
-        collection(db, "connections"),
-        where("userIds", "array-contains", currentUser.uid)
+// ---------- SENT REQUESTS ----------
+
+async function loadSent() {
+  showMessage(sentContainer, "Loading sent requests...");
+
+  const q = query(
+    collection(db, "connectionRequests"),
+    where("senderId", "==", currentUser.uid),
+    where("status", "==", "pending")
+  );
+
+  const snapshot = await getDocs(q);
+
+  sentContainer.replaceChildren();
+
+  if (snapshot.empty) {
+    showMessage(sentContainer, "You haven't sent any pending requests.");
+    return;
+  }
+
+  for (const requestDoc of snapshot.docs) {
+    const requestData = requestDoc.data();
+
+    const profile = await getRequestPreview(
+      requestData,
+      requestData.receiverId
     );
 
-    const snapshot = await getDocs(connectionsQuery);
+    const card = createCard(
+      profile || { displayName: "Unavailable profile" },
+      "Request pending"
+    );
 
-    connectedCount.textContent = snapshot.size;
-
-    if (snapshot.empty) {
-        showMessage("Your connections will appear here after requests are accepted.");
-        return;
-    }
-
-    hideMessage();
-
-    for (const connectionDoc of snapshot.docs) {
-        const connection = connectionDoc.data();
-
-        const otherUserId = connection.userIds.find(
-            uid => uid !== currentUser.uid
-        );
-
-        if (!otherUserId) continue;
-
-        const profile = await getPublicProfile(otherUserId);
-
-        if (!profile) continue;
-
-        const status = createElement(
-            "span",
-            "status-label",
-            "✓ Connected"
-        );
-
-        connectionList.appendChild(
-            createStudentCard(profile, otherUserId, null, status)
-        );
-    }
+    sentContainer.appendChild(card);
+  }
 }
 
-async function respondToRequest(
-    requestId,
-    request,
-    newStatus,
-    acceptButton,
-    declineButton
-) {
-    acceptButton.disabled = true;
-    declineButton.disabled = true;
+// ---------- ACCEPT / DECLINE ----------
 
-    try {
-        const batch = writeBatch(db);
+async function respondToRequest(requestId, response) {
+  try {
+    const requestRef = doc(db, "connectionRequests", requestId);
+    const requestSnap = await getDoc(requestRef);
 
-        const requestRef = doc(db, "connectionRequests", requestId);
-
-        batch.update(requestRef, {
-            status: newStatus
-        });
-
-        if (newStatus === "accepted") {
-            const connectionId = getConnectionId(
-                request.senderId,
-                request.receiverId
-            );
-
-            const connectionRef = doc(
-                db,
-                "connections",
-                connectionId
-            );
-
-            batch.set(connectionRef, {
-                userIds: [
-                    request.senderId,
-                    request.receiverId
-                ].sort(),
-                requestId: requestId,
-                createdAt: request.createdAt
-            });
-        }
-
-        await batch.commit();
-
-        showMessage(
-            newStatus === "accepted"
-                ? "Connection accepted!"
-                : "Request declined."
-        );
-
-        await loadConnections();
-
-    } catch (error) {
-        console.error("Request response error:", error);
-
-        acceptButton.disabled = false;
-        declineButton.disabled = false;
-
-        showMessage(
-            "Couldn't update this request. Please try again."
-        );
+    if (!requestSnap.exists()) {
+      alert("This request no longer exists.");
+      return;
     }
+
+    const requestData = requestSnap.data();
+
+    if (requestData.receiverId !== currentUser.uid) {
+      alert("You cannot respond to this request.");
+      return;
+    }
+
+    if (requestData.status !== "pending") {
+      alert("This request has already been handled.");
+      return;
+    }
+
+    const batch = writeBatch(db);
+
+    batch.update(requestRef, {
+      status: response
+    });
+
+    if (response === "accepted") {
+      const senderId = requestData.senderId;
+      const receiverId = requestData.receiverId;
+
+      const sortedIds = [senderId, receiverId].sort();
+      const connectionId = sortedIds.join("_");
+
+      const connectionRef = doc(db, "connections", connectionId);
+
+      batch.set(connectionRef, {
+        userIds: sortedIds,
+        requestId: requestId,
+        createdAt: serverTimestamp()
+      });
+    }
+
+    await batch.commit();
+
+    alert(
+      response === "accepted"
+        ? "Connection accepted!"
+        : "Request declined."
+    );
+
+    await loadCurrentTab();
+  } catch (error) {
+    console.error(error);
+    alert("Something went wrong. Check the console.");
+  }
 }
+
+// ---------- CONNECTED USERS ----------
+
+async function loadConnected() {
+  showMessage(connectedContainer, "Loading connections...");
+
+  const q = query(
+    collection(db, "connections"),
+    where("userIds", "array-contains", currentUser.uid)
+  );
+
+  const snapshot = await getDocs(q);
+
+  connectedCount.textContent = snapshot.size;
+
+  connectedContainer.replaceChildren();
+
+  if (snapshot.empty) {
+    showMessage(connectedContainer, "No connections yet.");
+    return;
+  }
+
+  for (const connectionDoc of snapshot.docs) {
+    const connectionData = connectionDoc.data();
+
+    const otherUserId = connectionData.userIds.find(
+      id => id !== currentUser.uid
+    );
+
+    if (!otherUserId) continue;
+
+    let profile = await getPublicProfile(otherUserId);
+
+    // Fallback to the original request's preview when possible.
+    if (!profile && connectionData.requestId) {
+      const requestSnap = await getDoc(
+        doc(db, "connectionRequests", connectionData.requestId)
+      );
+
+      if (requestSnap.exists()) {
+        const requestData = requestSnap.data();
+
+        profile = await getRequestPreview(
+          requestData,
+          otherUserId
+        );
+      }
+    }
+
+    const card = createCard(
+      profile || { displayName: "Connected student" },
+      "Connected"
+    );
+
+    const messageButton = createButton("Message", () => {
+      const conversationId = connectionDoc.id;
+
+      window.location.href =
+        `messages.html?conversationId=${encodeURIComponent(conversationId)}`;
+    });
+
+    card.appendChild(messageButton);
+
+    connectedContainer.appendChild(card);
+  }
+}
+
+// ---------- TAB ROUTER ----------
+
+async function loadCurrentTab() {
+  if (!currentUser) return;
+
+  try {
+    if (activeTab === "received") {
+      await loadReceived();
+    } else if (activeTab === "sent") {
+      await loadSent();
+    } else if (activeTab === "connected") {
+      await loadConnected();
+    }
+  } catch (error) {
+    console.error(error);
+
+    const container =
+      activeTab === "received"
+        ? receivedContainer
+        : activeTab === "sent"
+        ? sentContainer
+        : connectedContainer;
+
+    showMessage(container, "Unable to load this section.");
+  }
+}
+
+// ---------- TAB EVENTS ----------
+
+receivedTab.addEventListener("click", () => setTab("received"));
+sentTab.addEventListener("click", () => setTab("sent"));
+connectedTab.addEventListener("click", () => setTab("connected"));
+
+// ---------- AUTH ----------
+
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  currentUser = user;
+  setTab("received");
+});
