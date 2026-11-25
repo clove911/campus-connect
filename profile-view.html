@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Student Profile | Campus Connect</title>
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/profile-view.css">
+</head>
+
+<body>
+
+  <nav class="app-sidebar">
+    <a href="dashboard.html" class="nav-logo">
+      Campus Connect <span>✦</span>
+    </a>
+
+    <div class="nav-links">
+      <a href="dashboard.html" class="nav-item">Home</a>
+      <a href="messages.html" class="nav-item">Messages</a>
+      <a href="discover.html" class="nav-item">Discover</a>
+      <a href="profile.html" class="nav-item">My Profile</a>
+      <a href="connections.html" class="nav-item">Connections</a>
+    </div>
+
+    <div class="sidebar-footer">
+      Your space to grow. ✨
+    </div>
+  </nav>
+
+  <main class="share-view-main">
+
+    <div class="share-view-card">
+
+      <div class="share-view-top">
+        <span class="share-view-star">✦</span>
+        <p>Campus Connect</p>
+      </div>
+
+      <div id="profileViewContent">
+        <div class="share-view-avatar" id="profileAvatar">?</div>
+
+        <h1 id="profileName">Loading profile...</h1>
+
+        <p id="profileGrade"></p>
+
+        <div class="profile-view-section">
+          <h3>Subjects</h3>
+          <div id="profileSubjects" class="subject-tags"></div>
+        </div>
+
+        <div class="profile-view-section">
+          <h3>Study style</h3>
+          <p id="profileStudyStyle"></p>
+        </div>
+
+        <p class="share-view-note">
+          This is a limited profile preview.
+        </p>
+
+        <button id="sendRequestButton" class="share-view-button">
+          Send Connection Request
+        </button>
+
+        <p id="requestMessage"></p>
+      </div>
+
+      <div id="profileError" style="display:none;">
+        <h2>Profile unavailable</h2>
+        <p id="profileErrorMessage">
+          This profile link may have been revoked or may not exist.
+        </p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script type="module" src="js/profile-view.js"></script>
+
+</body>
+</html>
