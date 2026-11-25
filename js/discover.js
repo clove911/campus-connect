@@ -1,3 +1,4 @@
+
 import { auth, db } from "./firebase.js";
 
 import {
@@ -13,9 +14,9 @@ import {
     limit,
     getDocs,
     doc,
-    getDoc,
     setDoc,
-    serverTimestamp
+    serverTimestamp,
+    where
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
 const searchInput = document.getElementById("studentSearch");
@@ -46,32 +47,71 @@ function getConnectionId(uid1, uid2) {
     return [uid1, uid2].sort().join("_");
 }
 
+
+// ==========================================
+// CONNECTION STATUS
+// ==========================================
+
 async function getStudentConnectionStatus(studentId) {
-    const outgoingId = `${currentUser.uid}_${studentId}`;
-    const incomingId = `${studentId}_${currentUser.uid}`;
-    const connectionId = getConnectionId(currentUser.uid, studentId);
 
-    const [outgoingSnap, incomingSnap, connectionSnap] =
-        await Promise.all([
-            getDoc(doc(db, "connectionRequests", outgoingId)),
-            getDoc(doc(db, "connectionRequests", incomingId)),
-            getDoc(doc(db, "connections", connectionId))
-        ]);
+    // Query requests sent by current user.
+    const outgoingQuery = query(
+        collection(db, "connectionRequests"),
+        where("senderId", "==", currentUser.uid)
+    );
 
-    if (connectionSnap.exists()) {
+    // Query requests received by current user.
+    const incomingQuery = query(
+        collection(db, "connectionRequests"),
+        where("receiverId", "==", currentUser.uid)
+    );
+
+    // Query all accepted connections for current user.
+    const connectionsQuery = query(
+        collection(db, "connections"),
+        where("userIds", "array-contains", currentUser.uid)
+    );
+
+    const [
+        outgoingSnapshot,
+        incomingSnapshot,
+        connectionsSnapshot
+    ] = await Promise.all([
+        getDocs(outgoingQuery),
+        getDocs(incomingQuery),
+        getDocs(connectionsQuery)
+    ]);
+
+    // Check accepted connections.
+    const connected = connectionsSnapshot.docs.some(
+        connection =>
+            connection.data().userIds.includes(studentId)
+    );
+
+    if (connected) {
         return "connected";
     }
 
-    if (outgoingSnap.exists()) {
-        const status = outgoingSnap.data().status;
+    // Check outgoing requests.
+    const outgoingRequest = outgoingSnapshot.docs.find(
+        request => request.data().receiverId === studentId
+    );
+
+    if (outgoingRequest) {
+        const status = outgoingRequest.data().status;
 
         if (status === "pending") return "sent";
-        if (status === "accepted") return "connected";
         if (status === "declined") return "declined";
+        if (status === "accepted") return "connected";
     }
 
-    if (incomingSnap.exists()) {
-        const status = incomingSnap.data().status;
+    // Check incoming requests.
+    const incomingRequest = incomingSnapshot.docs.find(
+        request => request.data().senderId === studentId
+    );
+
+    if (incomingRequest) {
+        const status = incomingRequest.data().status;
 
         if (status === "pending") return "received";
         if (status === "accepted") return "connected";
@@ -80,12 +120,20 @@ async function getStudentConnectionStatus(studentId) {
     return "none";
 }
 
+
+// ==========================================
+// CONNECTION BUTTON
+// ==========================================
+
 function createConnectionButton(studentId, status) {
+
     const button = document.createElement("button");
     button.className = "connection-button";
 
     function setButtonState(nextStatus) {
+
         button.dataset.status = nextStatus;
+
         button.disabled = nextStatus !== "none";
 
         const labels = {
@@ -94,7 +142,8 @@ function createConnectionButton(studentId, status) {
             received: "Request Received",
             connected: "✓ Connected",
             declined: "Request Declined",
-            loading: "Sending..."
+            loading: "Sending...",
+            unavailable: "Unavailable"
         };
 
         button.textContent = labels[nextStatus] || "Unavailable";
@@ -103,26 +152,30 @@ function createConnectionButton(studentId, status) {
     setButtonState(status);
 
     button.addEventListener("click", async () => {
+
         if (!currentUser || button.disabled) return;
 
         setButtonState("loading");
 
         try {
-            const requestId = `${currentUser.uid}_${studentId}`;
+
+            // Recheck current status before sending.
+            const latestStatus =
+                await getStudentConnectionStatus(studentId);
+
+            if (latestStatus !== "none") {
+                setButtonState(latestStatus);
+                return;
+            }
+
+            const requestId =
+                `${currentUser.uid}_${studentId}`;
+
             const requestRef = doc(
                 db,
                 "connectionRequests",
                 requestId
             );
-
-            // Check again before creating, to avoid duplicates.
-            const existingRequest = await getDoc(requestRef);
-
-            if (existingRequest.exists()) {
-                const latestStatus = await getStudentConnectionStatus(studentId);
-                setButtonState(latestStatus);
-                return;
-            }
 
             await setDoc(requestRef, {
                 senderId: currentUser.uid,
@@ -133,10 +186,14 @@ function createConnectionButton(studentId, status) {
 
             setButtonState("sent");
 
+            showMessage("Connection request sent!");
+
         } catch (error) {
+
             console.error("Connection request error:", error);
 
             setButtonState("none");
+
             showMessage(
                 "Couldn't send the request. Please try again."
             );
@@ -146,11 +203,18 @@ function createConnectionButton(studentId, status) {
     return button;
 }
 
+
+// ==========================================
+// STUDENT CARDS
+// ==========================================
+
 async function renderStudents(students, version) {
+
     resultsContainer.replaceChildren();
 
     const cards = await Promise.all(
         students.map(async student => {
+
             const card = document.createElement("article");
             card.className = "student-card";
 
@@ -159,6 +223,7 @@ async function renderStudents(students, version) {
 
             const avatar = document.createElement("div");
             avatar.className = "student-avatar";
+
             avatar.textContent =
                 student.displayName.charAt(0).toUpperCase();
 
@@ -172,7 +237,7 @@ async function renderStudents(students, version) {
 
             const subjects = document.createElement("p");
             subjects.textContent =
-                `Subjects: ${student.subjects.join(", ")}`;
+                `Subjects: ${(student.subjects || []).join(", ")}`;
 
             const style = document.createElement("p");
             style.textContent =
@@ -181,16 +246,27 @@ async function renderStudents(students, version) {
             card.append(heading, grade, subjects, style);
 
             try {
-                const status = await getStudentConnectionStatus(student.id);
-                const button = createConnectionButton(student.id, status);
+
+                const status =
+                    await getStudentConnectionStatus(student.id);
+
+                const button =
+                    createConnectionButton(student.id, status);
+
                 card.appendChild(button);
+
             } catch (error) {
-                console.error("Couldn't load connection status:", error);
+
+                console.error(
+                    "Couldn't load connection status:",
+                    error
+                );
 
                 const button = document.createElement("button");
                 button.className = "connection-button";
                 button.textContent = "Unavailable";
                 button.disabled = true;
+
                 card.appendChild(button);
             }
 
@@ -203,7 +279,13 @@ async function renderStudents(students, version) {
     resultsContainer.replaceChildren(...cards);
 }
 
+
+// ==========================================
+// STUDENT SEARCH
+// ==========================================
+
 async function searchStudents(searchTerm) {
+
     const version = ++searchVersion;
 
     resultsContainer.replaceChildren();
@@ -221,6 +303,7 @@ async function searchStudents(searchTerm) {
     showMessage("Searching students...");
 
     try {
+
         const studentsQuery = query(
             collection(db, "publicProfiles"),
             orderBy("displayNameLower"),
@@ -246,15 +329,28 @@ async function searchStudents(searchTerm) {
         }
 
         showMessage(`Found ${students.length} student(s).`);
+
         await renderStudents(students, version);
 
     } catch (error) {
+
         console.error("Student search error:", error);
-        showMessage("Couldn't search right now. Please try again.");
+
+        showMessage(
+            "Couldn't search right now. Please try again."
+        );
     }
 }
 
+
+// ==========================================
+// SEARCH INPUT
+// ==========================================
+
 searchInput.addEventListener("input", () => {
-    const searchTerm = searchInput.value.trim().toLowerCase();
+
+    const searchTerm =
+        searchInput.value.trim().toLowerCase();
+
     searchStudents(searchTerm);
 });
