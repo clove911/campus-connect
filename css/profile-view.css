@@ -1,0 +1,136 @@
+
+.share-view-main {
+  margin-left: 250px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 35px;
+  box-sizing: border-box;
+}
+
+.share-view-card {
+  width: 100%;
+  max-width: 540px;
+  padding: 35px;
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow: 0 12px 45px rgba(72, 91, 150, 0.12);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.share-view-top {
+  color: #7586cc;
+  margin-bottom: 25px;
+}
+
+.share-view-star {
+  font-size: 35px;
+  color: #f0b86c;
+}
+
+.share-view-avatar {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #dce8ff;
+  color: #5269c9;
+  font-size: 35px;
+  font-weight: 700;
+}
+
+.share-view-card h1 {
+  color: #303c68;
+  overflow-wrap: anywhere;
+}
+
+#profileGrade {
+  color: #75809b;
+}
+
+.profile-view-section {
+  margin-top: 25px;
+  text-align: left;
+}
+
+.profile-view-section h3 {
+  color: #47567d;
+  margin-bottom: 10px;
+}
+
+.subject-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.subject-tag {
+  background: #edf1ff;
+  color: #5269c9;
+  padding: 8px 13px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+#profileStudyStyle {
+  background: #fff5e8;
+  color: #795a36;
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.share-view-note {
+  margin-top: 25px;
+  color: #8992a8;
+  font-size: 13px;
+}
+
+.share-view-button {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: #5269c9;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.share-view-button:hover {
+  background: #4056b5;
+  transform: translateY(-1px);
+}
+
+.share-view-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+#requestMessage {
+  margin-top: 15px;
+  color: #5269c9;
+}
+
+#profileError {
+  color: #69758e;
+}
+
+@media (max-width: 800px) {
+  .share-view-main {
+    margin-left: 0;
+    padding: 20px;
+  }
+
+  .share-view-card {
+    padding: 25px;
+  }
+}
